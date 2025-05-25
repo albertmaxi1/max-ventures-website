@@ -1,22 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-
-// Ensure these global variables are defined in the Canvas environment
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-
-// Firebase initialization and auth setup (common for all pages)
-let firebaseApp, dbInstance, authInstance;
-
-function initializeFirebase() {
-  if (!firebaseApp) {
-    firebaseApp = initializeApp(firebaseConfig);
-    dbInstance = getFirestore(firebaseApp);
-    authInstance = getAuth(firebaseApp);
-  }
-}
+// Removed all Firebase imports and related global variables.
 
 // Function to call Gemini API for text generation
 const callGeminiTextAPI = async (prompt) => {
@@ -24,7 +7,8 @@ const callGeminiTextAPI = async (prompt) => {
     let chatHistory = [];
     chatHistory.push({ role: "user", parts: [{ text: prompt }] });
     const payload = { contents: chatHistory };
-    const apiKey = ""; // Canvas will provide this at runtime
+    // Your API key is placed directly here. Keep it secure!
+    const apiKey = "AIzaSyDr8Zs5bbGFhGHHGq0o4MiUzX2KEnPb89g";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
@@ -53,7 +37,8 @@ const callGeminiTextAPI = async (prompt) => {
 const callImagenAPI = async (prompt) => {
   try {
     const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1 } };
-    const apiKey = ""; // Canvas will provide this at runtime
+    // Your API key is placed directly here. Keep it secure!
+    const apiKey = "AIzaSyDr8Zs5bbGFhGHHGq0o4MiUzX2KEnPb89g";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
@@ -77,14 +62,11 @@ const callImagenAPI = async (prompt) => {
 };
 
 // Home Page Component
-const HomePage = ({ userId }) => {
-  // Removed heroText state as it's now hardcoded directly in JSX
-  const [heroImage, setHeroImage] = useState("https://placehold.co/1200x600/0A1931/0A1931"); // Changed placeholder to be text-free
-  // Removed loadingText state as text generation is no longer here
+const HomePage = () => {
+  const [heroImage, setHeroImage] = useState("https://placehold.co/1200x600/0A1931/0A1931"); // Initial placeholder background
   const [loadingImage, setLoadingImage] = useState(false);
 
-  // Removed generateHeroText function
-
+  // This function is still available if you wish to re-add a button to trigger image generation
   const generateHeroImage = async () => {
     setLoadingImage(true);
     const imageUrl = await callImagenAPI("Abstract digital background with glowing blue and purple lines, subtle geometric patterns, professional, high-tech, dark tones, similar to McKinsey's website backdrop.");
@@ -99,7 +81,7 @@ const HomePage = ({ userId }) => {
           src={heroImage}
           alt="Professional Consulting Background"
           className="w-full h-full object-cover"
-          onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1200x600/0A1931/0A1931"; }} // Changed fallback to be text-free
+          onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1200x600/0A1931/0A1931"; }}
         />
       </div>
       <div className="container mx-auto px-6 md:px-12 relative z-10 flex flex-col items-center text-center">
@@ -107,9 +89,22 @@ const HomePage = ({ userId }) => {
           <span className="font-merriweather-bold text-white">Max</span>
           <span className="font-inter-light text-mckinsey-light-gray">&nbsp;Ventures</span>
         </h1>
-        {/* Removed the sub-headline p tag */}
-        {/* Removed buttons for text and image generation */}
-        {/* Removed userId display */}
+        {/* If you want to put a button to generate images again, uncomment this:
+        <button
+            onClick={generateHeroImage}
+            className="bg-blue-800 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 flex items-center justify-center"
+            disabled={loadingImage}
+          >
+            {loadingImage ? (
+              <svg className="animate-spin h-5 w-5 text-white mr-3" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              'Generate Hero Image'
+            )}
+          </button>
+          */}
       </div>
     </section>
   );
@@ -380,44 +375,17 @@ const ContactPage = () => {
 // Main App Component
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
-  const [userId, setUserId] = useState(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  // Removed userId and isAuthReady states as Firebase is removed
+  // const [userId, setUserId] = useState(null);
+  // const [isAuthReady, setIsAuthReady] = useState(false);
 
-  // Initialize Firebase and handle authentication
-  useEffect(() => {
-    initializeFirebase(); // Call the shared initialization function
-
-    // Corrected initialAuthToken usage
-    const initialAuthTokenValue = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-    const unsubscribe = onAuthStateChanged(authInstance, async (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        if (initialAuthTokenValue) { // Use the corrected variable here
-          try {
-            await signInWithCustomToken(authInstance, initialAuthTokenValue);
-            setUserId(authInstance.currentUser?.uid || crypto.randomUUID());
-          } catch (error) {
-            console.error("Error signing in with custom token:", error);
-            await signInAnonymously(authInstance);
-            setUserId(authInstance.currentUser?.uid || crypto.randomUUID());
-          }
-        } else {
-          await signInAnonymously(authInstance);
-          setUserId(authInstance.currentUser?.uid || crypto.randomUUID());
-        }
-      }
-      setIsAuthReady(true);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // Removed Firebase initialization in useEffect
+  // useEffect(() => { /* ... */ }, []);
 
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage userId={userId} />;
+        return <HomePage />; // Removed userId prop
       case 'about':
         return <AboutPage />;
       case 'services':
@@ -425,7 +393,7 @@ function App() {
       case 'contact':
         return <ContactPage />;
       default:
-        return <HomePage userId={userId} />;
+        return <HomePage />; // Removed userId prop
     }
   };
 
@@ -468,17 +436,17 @@ function App() {
           </button>
 
           {/* Max Ventures Logo (Text-based, mimicking McKinsey) */}
-          <a href="#" onClick={() => setCurrentPage('home')} className="flex items-baseline space-x-1 rounded-md p-2 hover:bg-blue-800 transition duration-300">
+          <a href="/" onClick={() => setCurrentPage('home')} className="flex items-baseline space-x-1 rounded-md p-2 hover:bg-blue-800 transition duration-300">
             <span className="text-3xl font-merriweather-bold text-white">Max</span>
             <span className="text-2xl font-inter-light text-mckinsey-light-gray">&nbsp;Ventures</span>
           </a>
 
           {/* Navigation Links */}
           <div className="hidden md:flex space-x-6 ml-auto">
-            <a href="#home" onClick={() => setCurrentPage('home')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">Home</a>
-            <a href="#about" onClick={() => setCurrentPage('about')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">About</a>
-            <a href="#services" onClick={() => setCurrentPage('services')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">Services</a>
-            <a href="#contact" onClick={() => setCurrentPage('contact')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">Contact</a>
+            <a href="/" onClick={() => setCurrentPage('home')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">Home</a>
+            <a href="/about" onClick={() => setCurrentPage('about')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">About</a>
+            <a href="/services" onClick={() => setCurrentPage('services')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">Services</a>
+            <a href="/contact" onClick={() => setCurrentPage('contact')} className="text-mckinsey-light-gray hover:text-white font-medium transition duration-300 rounded-md p-2 hover:bg-blue-800">Contact</a>
           </div>
         </nav>
       </header>
@@ -493,32 +461,8 @@ function App() {
               <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-12">
                 Voices of our impact.
               </p>
-              <button
-                onClick={async () => {
-                  const text = await callGeminiTextAPI("Generate two extremely brief, impactful testimonials for a consulting business named Max Ventures, in a victorious American style. Format as: 'Quote' - Author, Company");
-                  const parts = text.split('\n').filter(p => p.trim() !== '');
-                  if (parts.length >= 2) {
-                    // Assuming the format 'Quote' - Author, Company
-                    const newTestimonials = parts.map(p => {
-                      const [quotePart, authorCompanyPart] = p.split(' - ');
-                      return { quote: quotePart.replace(/^['"]|['"]$/g, ''), author: authorCompanyPart || 'Anonymous' };
-                    });
-                    // Update testimonials state in App component
-                    // This would ideally be passed down as a prop or managed by a global state
-                    // For now, we'll keep it simple and generate new ones each time.
-                    // If this were a real app, testimonials would likely be fetched from a DB.
-                    console.log("Generated Testimonials:", newTestimonials);
-                    // To actually update, you'd need to lift this state or use context.
-                    // For this demo, we'll just log and let the user re-click for new ones.
-                  } else {
-                    console.log("Failed to generate structured testimonials:", text);
-                  }
-                }}
-                className="bg-blue-900 text-white px-6 py-3 rounded-md font-semibold shadow-md hover:bg-blue-800 transition duration-300 transform hover:scale-105 mb-12 flex items-center justify-center mx-auto"
-              >
-                Generate Testimonials
-              </button>
-
+              {/* Removed Generate Testimonials button as it currently doesn't update UI state.
+                  Testimonials are hardcoded for simplicity. */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Testimonials are hardcoded for now, as state management for them across pages would require more complex setup */}
                 <div className="bg-gray-50 p-8 rounded-lg shadow-lg border border-gray-200">
@@ -548,4 +492,3 @@ function App() {
 }
 
 export default App;
-
