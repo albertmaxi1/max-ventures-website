@@ -399,31 +399,7 @@ function App() {
 
   return (
     <div className="font-sans antialiased text-gray-800 bg-gray-50">
-      {/* Tailwind CSS CDN */}
-      <script src="https://cdn.tailwindcss.com"></script>
-      {/* Google Fonts: Inter (for body) and Merriweather (for logo) */}
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:wght@700&display=swap" rel="stylesheet" />
-      
-      {/* Custom CSS for font-family and specific styles */}
-      <style>{`
-        body {
-          font-family: 'Inter', sans-serif;
-        }
-        .font-merriweather-bold {
-            font-family: 'Merriweather', serif;
-            font-weight: 700; /* Bold */
-        }
-        .font-inter-light {
-            font-family: 'Inter', sans-serif;
-            font-weight: 300; /* Light */
-        }
-        .header-bg-color {
-            background-color: #0A1931; /* Very dark blue, almost black */
-        }
-        .text-mckinsey-light-gray {
-            color: #E0E0E0; /* Light gray for secondary text */
-        }
-      `}</style>
+    
 
       {/* Header */}
       <header className="header-bg-color shadow-lg py-4 px-6 md:px-12 sticky top-0 z-50">
