@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/max-ventures-website/static/css/main.31d6cfe0.css",
-    "main.js": "/max-ventures-website/static/js/main.a6fbb24c.js",
+    "main.js": "/max-ventures-website/static/js/main.ab73015d.js",
     "index.html": "/max-ventures-website/index.html",
-    "main.a6fbb24c.js.map": "/max-ventures-website/static/js/main.a6fbb24c.js.map"
+    "main.ab73015d.js.map": "/max-ventures-website/static/js/main.ab73015d.js.map"
   },
   "entrypoints": [
     "static/css/main.31d6cfe0.css",
-    "static/js/main.a6fbb24c.js"
+    "static/js/main.ab73015d.js"
   ]
 }
